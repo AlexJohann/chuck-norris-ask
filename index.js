@@ -7,7 +7,7 @@ var APP_ID = undefined; //replace with "amzn1.echo-sdk-ams.app.[your-unique-valu
  * The AlexaSkill prototype and helper functions
  */
 var AlexaSkill = require('./AlexaSkill');
-var https = require('https');
+var http = require('http');
 var urlPrefix = "http://api.icndb.com/jokes/random";
 
 var ChuckNorris = function () {
@@ -19,7 +19,7 @@ ChuckNorris.prototype = Object.create(AlexaSkill.prototype);
 ChuckNorris.prototype.constructor = ChuckNorris;
 
 ChuckNorris.prototype.eventHandlers.onSessionStarted = function (sessionStartedRequest, session) {
-    console.log("HelloWorld onSessionStarted requestId: " + sessionStartedRequest.requestId
+    console.log("ChuckNorris onSessionStarted requestId: " + sessionStartedRequest.requestId
         + ", sessionId: " + session.sessionId);
 };
 
@@ -38,11 +38,13 @@ ChuckNorris.prototype.eventHandlers.onSessionEnded = function (sessionEndedReque
 ChuckNorris.prototype.intentHandlers = {
 
     "ChuckNorrisIntent": function (intent, session, response) {
-        var speechOut = fetchChuckNorrisFact();
+        var speechOut = "Chuck is working"; 
         var cardTitle = "Chuck Norris Facts";
         var cardSpeech = speechOut;
 
-        response.tellWithCard(speechOut, cardTitle, cardSpeech);
+        fetchChuckNorrisFact( response );
+
+        // response.tellWithCard(speechOut, cardTitle, cardSpeech);
     },
     "AMAZON.HelpIntent": function (intent, session, response) {
         response.ask("You can say give me a fact!", "You can say give me a fact!");
@@ -51,28 +53,29 @@ ChuckNorris.prototype.intentHandlers = {
 
 // Create the handler that responds to the Alexa Request.
 exports.handler = function (event, context) {
-    // Create an instance of the HelloWorld skill.
     var chuckNorris = new ChuckNorris();
     chuckNorris.execute(event, context);
 };
 
-function fetchChuckNorrisFact()
+function fetchChuckNorrisFact( response )
 {
     var url = urlPrefix; 
-
-    https.get(url, function(res) {
+    http.get(url, function(res) {
         var body = '';
+
+        console.log(res);
 
         res.on('data', function (chunk) {
             body += chunk;
+            console.log(body);
         });
 
         res.on('end', function () {
-            console.log( body );
-            var stringResult = body["value"]["joke"];
-            return stringResult;
+            var chuckFact = JSON.parse(body);
+            response.tell("Did you know: " + chuckFact.value.joke );
         });
     }).on('error', function (e) {
-        console.log("Got error: ", e);
+        response.tell("I am sorry, but I couldn't reach Chuck Norris wisdom on the web. Try again later. " + e.message );
     });
+
 }
