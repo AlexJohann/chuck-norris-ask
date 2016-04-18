@@ -1,7 +1,7 @@
 /**
  * App ID for the skill
  */
-var APP_ID = undefined; //replace with "amzn1.echo-sdk-ams.app.[your-unique-value-here]";
+var APP_ID = undefined; 
 
 /**
  * The AlexaSkill prototype and helper functions
@@ -43,8 +43,6 @@ ChuckNorris.prototype.intentHandlers = {
         var cardSpeech = speechOut;
 
         fetchChuckNorrisFact( response );
-
-        // response.tellWithCard(speechOut, cardTitle, cardSpeech);
     },
     "AMAZON.HelpIntent": function (intent, session, response) {
         response.ask("You can say give me a fact!", "You can say give me a fact!");
